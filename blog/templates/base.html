@@ -1,15 +1,36 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
 <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
 <script src="{% static 'js/jquery-1.11.0.min.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}模板{% endblock %}</title>
+    <style type="text/css">
+        body {
+            padding-top: 70px;
+            padding-bottom: 50px;
+        }
+    </style>
+</head>
+
 <body>
 {%  include 'nav.html' %}
+<div class="container">
+    <div class="row clearfix">
+        <div class="col-lg-9 column">
+            {% block content %}主体内容！！！！{% endblock %}
+        </div>
+        <div class="col-md-3 column hidden-xs hidden-sm">
+            {% include 'sidebar.html' %}
+        </div>
+    </div>
+</div>
+<footer>
+    {% include 'bootom.html' %}
+
+</footer>
 </body>
 
 </html>

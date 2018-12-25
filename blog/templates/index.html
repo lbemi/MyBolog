@@ -1,10 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html'%}
+{% block title %}首页{% endblock %}
+{% block content %}
+    {% for article in page_obj.object_list %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a href="#">{{ article.title }}</a>
+                </h3>
+            </div>
+            <div class="panel-body">
+                <p>作者：{{ article.author }} 日期：{{ article.pub_time }}</p>
+                <p>{{ article.content | truncatechars:200|striptags }}</p>
+                <a class="btn" href="#">进入阅读 >></a>
+            </div>
+        </div>
+    {% endfor %}
+    {% include 'paginator.html' %}
+{% endblock %}
 
-</body>
-</html>
