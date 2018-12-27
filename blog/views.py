@@ -3,7 +3,8 @@ from blog.models import *
 from django.views.generic import ListView,DetailView
 from django.db.models import Q
 from .forms import CommentForm
-# Create your views here.
+from django.http import HttpResponse
+import markdown
 
 class index(ListView):
     model = Article
@@ -45,25 +46,7 @@ class Search(ListView):
         context['key'] = self.request.GET['key']
         return context
 
-def comment_sort(self,comments):
-    self.commet_list = []
-    self.top_level = []
-    self.sub_level = {}
-    for comment in comments:
-        if comment.reply == None:
-            self.top_level.append(comment)
-        else:
-            self.sub_level.setdefault(comment.reply.id,[]).append(comment)
 
-def format_show(self,top_comment):
-    self.comment_lsit.append(top_comment)
-    try:
-        self.kids = self.sub_level[top_comment.id]
-    except KeyError:
-        pass
-    else:
-        for kid in self.kids:
-            self.format_show(kid)
 class AritcleDetail(DetailView):
     model = Article
     template_name = 'detail.html'
@@ -72,8 +55,72 @@ class AritcleDetail(DetailView):
         comment_form = CommentForm
         content = super().get_context_data(**kwargs)
         comments = Comment.objects.filter(article=self.kwargs['pk'])
-        content['commetn_list'] = comment_sort(comments)
+        content['comment_list'] = self.comment_sort(comments)
         content['comment_form'] = comment_form
+        try:
+            content['session'] = {
+                'name':self.request.seesion['name'],
+                'email':self.request.seesion['email'],
+                'content': self.request.seesion['content']
+            }
+        except:
+            pass
+        content['article'].content = markdown.markdown(content['article'].content, extensions = [
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite',
+            'markdown.extensions.toc',
+        ])
+
         return content
 
+    def comment_sort(self, comments):
+        self.commet_list = []
+        self.top_level = []
+        self.sub_level = {}
+        for comment in comments:
+            print(comment.content)
+            comment.content = markdown.markdown(comment.content, extensions=[
+                'markdown.extensions.extra',
+                'markdown.extensions.codehilite',
+                'markdown.extensions.toc',
+            ])
+            if comment.reply == None:
+                self.top_level.append(comment)
+            else:
+                self.sub_level.setdefault(comment.reply.id, []).append(comment)
+        for top_comment in self.top_level:
+            self.format_show(top_comment)
+        return self.commet_list
 
+    def format_show(self, top_comment):
+        self.commet_list.append(top_comment)
+        try:
+            self.kids = self.sub_level[top_comment.id]
+        except KeyError:
+            pass
+        else:
+            for kid in self.kids:
+                self.format_show(kid)
+
+def pub_commet(request):
+    if request.method == 'POST':
+        request.session['name'] = request.POST.get('name')
+        request.session['email'] = request.POST.get('email')
+        comment = Comment()
+        comment.article = Article.objects.get(id = request.POST.get('article'))
+        if request.POST.get('reply') != '0':
+            comment.reply = Comment.objects.get(id=request.POST.get('reply'))
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            try:
+                form.save()
+                result = '200'
+                request.session['content'] = ''
+            except:
+                request.session['content'] = request.POST.get('content')
+                result = '100'
+        else:
+            result = '100'
+        return HttpResponse(result)
+    else:
+        return HttpResponse('非法请求！！！')

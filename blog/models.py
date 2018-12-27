@@ -39,7 +39,8 @@ class Comment(models.Model):
     email = models.EmailField(verbose_name='邮箱')
     content = models.TextField(verbose_name='评论内容')
     publish = models.DateField(verbose_name='时间', auto_now=True)
-    article = models.ForeignKey(Article, on_delete=models.DO_NOTHING, null=True, blank=True,verbose_name='回复')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, verbose_name='文章')
+    reply  = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name='回复')
 
     class Meta:
         verbose_name_plural = verbose_name = '评论'

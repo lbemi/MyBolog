@@ -11,7 +11,7 @@
         <div class="panel-body">
             <p>作者：{{ article.author }} 日期：{{ article.pub_time }}</p>
             <p>{{ article.content|truncatechars:200|striptags }}</p>
-            <a class="btn" href="{% url 'detail' %}">进入阅读 »</a>
+            <a class="btn" href="{% url 'detail' article.id %}">进入阅读 »</a>
         </div>
     {% empty %}
         <h4>没有查询到结果！</h4>

@@ -5,13 +5,13 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a href="#">{{ article.title }}</a>
+                    <a href="{% url 'detail' article.id %}">{{ article.title }}</a>
                 </h3>
             </div>
             <div class="panel-body">
                 <p>作者：{{ article.author }} 日期：{{ article.pub_time }}</p>
                 <p>{{ article.content | truncatechars:200|striptags }}</p>
-                <a class="btn" href="#">进入阅读 >></a>
+                <a class="btn" href="{% url 'detail' article.id %}">进入阅读 >></a>
             </div>
         </div>
     {% endfor %}
